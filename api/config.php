@@ -4,6 +4,8 @@ date_default_timezone_set('Asia/Bangkok');
 
 // Load environment variables from .env
 $envFile = __DIR__ . '/.env';
+
+
 if (file_exists($envFile)) {
     $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
@@ -17,6 +19,7 @@ if (file_exists($envFile)) {
 }
 
 define('DB_HOST', $_ENV['DB_HOST'] ?? 'localhost');
+define('DB_PORT', $_ENV['DB_PORT'] ?? '5432');
 define('DB_NAME', $_ENV['DB_NAME'] ?? '');
 define('DB_USER', $_ENV['DB_USER'] ?? '');
 define('DB_PASS', $_ENV['DB_PASS'] ?? '');
@@ -64,7 +67,8 @@ function getDB()
     if ($pdo === null) {
         try {
             $pdo = new PDO(
-                'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4',
+                // 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4',
+                $dsn = 'pgsql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME;
                 DB_USER,
                 DB_PASS,
                 [
@@ -74,7 +78,10 @@ function getDB()
                 ]
             );
         } catch (PDOException $e) {
-            jsonResponse(500, ['error' => 'Database connection failed']);
+            jsonResponse(500, [
+                'error' => 'Database connection failed',
+                'message' => $e->getMessage()
+            ]);
         }
     }
     return $pdo;
