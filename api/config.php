@@ -36,7 +36,8 @@ define('PAYSO_POSTBACK_URL', '/api/paysolutions-callback.php');  // server-to-se
 // CORS & Headers
 $allowedOrigins = [
     'https://aquathrill-thailand.com',
-    'https://www.aquathrill-thailand.com'
+    'https://www.aquathrill-thailand.com',
+    'https://aquathrill-thailand.vercel.app'
 ];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, $allowedOrigins)) {
