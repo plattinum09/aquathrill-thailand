@@ -66,7 +66,7 @@ function getDB()
     static $pdo = null;
     if ($pdo === null) {
         try {
-            $dsn = 'pgsql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME;
+            $dsn = 'pgsql:host=' . DB_HOST . ';dbname=' . DB_NAME;
 
             $pdo = new PDO(
                 $dsn,
