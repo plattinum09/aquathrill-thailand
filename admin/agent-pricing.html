@@ -182,7 +182,7 @@
             body: JSON.stringify({action:'check'}), credentials:'include'
         });
         const d = await r.json();
-        if (!d.authenticated) { location.href = 'index.html'; return; }
+        if (!d.authenticated) { location.href = '/admin/index.html'; return; }
         loadAll();
     })();
 
