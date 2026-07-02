@@ -198,14 +198,14 @@ if (!$sourceVerified) {
 
 // ---------- Layer 6: Replay attack guard (transaction_id ซ้ำ) ----------
 $db->exec("CREATE TABLE IF NOT EXISTS payment_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     booking_id VARCHAR(30),
     transaction_id VARCHAR(50),
     payment_method VARCHAR(20) DEFAULT 'payso',
     amount DECIMAL(10,2),
     currency VARCHAR(3) DEFAULT 'THB',
     status VARCHAR(20) DEFAULT 'pending',
-    gateway_response JSON,
+    gateway_response JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_txid (transaction_id),
     INDEX idx_booking (booking_id)
@@ -253,10 +253,10 @@ $existing->execute([$bookingIdStr]);
 $row = $existing->fetch();
 
 if ($row) {
-    $up = $db->prepare("UPDATE payment_logs SET transaction_id = ?, amount = ?, status = ?, gateway_response = ? WHERE id = ?");
+    $up = $db->prepare("UPDATE payment_logs SET transaction_id = ?, amount = ?, status = ?, gateway_response = ?::jsonb WHERE id = ?");
     $up->execute([$transactionId, $receivedTotal, $paymentStatus, $gatewayResponse, $row['id']]);
 } else {
-    $ins = $db->prepare("INSERT INTO payment_logs (booking_id, transaction_id, payment_method, amount, status, gateway_response) VALUES (?, ?, 'payso', ?, ?, ?)");
+    $ins = $db->prepare("INSERT INTO payment_logs (booking_id, transaction_id, payment_method, amount, status, gateway_response) VALUES (?, ?, 'payso', ?, ?, ?::jsonb)");
     $ins->execute([$bookingIdStr, $transactionId, $receivedTotal, $paymentStatus, $gatewayResponse]);
 }
 

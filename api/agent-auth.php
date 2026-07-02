@@ -16,14 +16,14 @@ $db = getDB();
 
 // Ensure agents table exists
 $db->exec("CREATE TABLE IF NOT EXISTS agents (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     phone VARCHAR(20),
     company VARCHAR(200),
     password_hash VARCHAR(255) NOT NULL,
-    status ENUM('pending','approved','rejected') DEFAULT 'pending',
+    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     approved_at TIMESTAMP NULL
 )");

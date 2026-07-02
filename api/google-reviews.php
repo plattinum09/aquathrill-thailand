@@ -199,7 +199,7 @@ if ($method === 'POST') {
         if ($enabled) {
             $db->prepare("DELETE FROM google_reviews_toggle WHERE review_key = ?")->execute([$key]);
         } else {
-            $stmt = $db->prepare("INSERT IGNORE INTO google_reviews_toggle (review_key) VALUES (?)");
+            $stmt = $db->prepare("INSERT INTO google_reviews_toggle (review_key) VALUES (?) ON CONFLICT (review_key) DO NOTHING");
             $stmt->execute([$key]);
         }
         jsonResponse(200, ['success' => true, 'message' => $enabled ? 'เปิดแสดงรีวิว' : 'ซ่อนรีวิว']);
@@ -295,21 +295,21 @@ function initReviewTables(): void
 {
     $db = getDB();
     $db->exec("CREATE TABLE IF NOT EXISTS manual_reviews (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
         author_name VARCHAR(255) NOT NULL,
-        rating TINYINT NOT NULL DEFAULT 5,
+        rating SMALLINT NOT NULL DEFAULT 5,
         text TEXT NOT NULL,
         photo VARCHAR(500) DEFAULT '',
         trip VARCHAR(255) DEFAULT 'Customer Review',
-        enabled TINYINT(1) NOT NULL DEFAULT 1,
+        enabled SMALLINT NOT NULL DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    )");
 
     $db->exec("CREATE TABLE IF NOT EXISTS google_reviews_toggle (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
         review_key VARCHAR(500) NOT NULL UNIQUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    )");
 }
 
 function isCacheValid(): bool

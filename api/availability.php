@@ -162,7 +162,7 @@ switch ($method) {
 
         $stmt = $db->prepare("INSERT INTO boat_availability (boat_type, slot_date, time_slot, status, total_boats, blocked_boats) 
             VALUES (?, ?, ?, ?, ?, ?) 
-            ON DUPLICATE KEY UPDATE status = ?, total_boats = ?, blocked_boats = ?");
+            ON CONFLICT (boat_type, slot_date, time_slot) DO UPDATE SET status = EXCLUDED.status, total_boats = EXCLUDED.total_boats, blocked_boats = EXCLUDED.blocked_boats");
         $stmt->execute([
             $bt, $date, $slot, $status, $totalBoats, $blockedBoats,
             $status, $totalBoats, $blockedBoats

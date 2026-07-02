@@ -11,15 +11,15 @@ $db = getDB();
 
 // Ensure table exists
 $db->exec("CREATE TABLE IF NOT EXISTS agent_payment_slips (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     booking_id VARCHAR(30) NOT NULL,
     agent_id INT NOT NULL,
     slip_url VARCHAR(500) NOT NULL,
     amount DECIMAL(10,2) NULL,
-    status ENUM('pending','approved','rejected') DEFAULT 'pending',
+    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected')),
     admin_note VARCHAR(255) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_booking_id (booking_id),
     INDEX idx_agent_id (agent_id),
     INDEX idx_status (status)
@@ -130,7 +130,7 @@ switch ($method) {
         $stmt = $db->prepare("
             SELECT s.*, b.boat_type, b.booking_date, b.time_slot,
                    b.customer_name, b.customer_phone, b.total_price as booking_price,
-                   CONCAT(a.first_name,' ',a.last_name) as agent_name, a.company as agent_company
+                   a.first_name || ' ' || a.last_name as agent_name, a.company as agent_company
             FROM agent_payment_slips s
             JOIN bookings b ON s.booking_id = b.booking_id
             JOIN agents a ON s.agent_id = a.id
@@ -170,7 +170,7 @@ switch ($method) {
             jsonResponse(404, ['error' => 'Slip not found']);
         }
 
-        $stmt = $db->prepare("UPDATE agent_payment_slips SET status=?, admin_note=? WHERE id=?");
+        $stmt = $db->prepare("UPDATE agent_payment_slips SET status=?, admin_note=?, updated_at=CURRENT_TIMESTAMP WHERE id=?");
         $stmt->execute([$body['status'], $body['note'] ?? null, $body['id']]);
 
         // If approved → confirm booking; if rejected → set pending payment

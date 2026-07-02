@@ -11,9 +11,9 @@ $db = getDB();
 // Ensure table exists
 $db->exec("CREATE TABLE IF NOT EXISTS page_content (
     page_key VARCHAR(50) PRIMARY KEY,
-    content JSON NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    content JSONB NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)");
 
 switch ($method) {
     case 'GET':
@@ -34,9 +34,9 @@ switch ($method) {
         $key = $body['page'] ?? 'promotions';
         $content = json_encode($body['content'] ?? [], JSON_UNESCAPED_UNICODE);
 
-        $stmt = $db->prepare("INSERT INTO page_content (page_key, content) VALUES (?, ?) 
-            ON DUPLICATE KEY UPDATE content = ?, updated_at = CURRENT_TIMESTAMP");
-        $stmt->execute([$key, $content, $content]);
+        $stmt = $db->prepare("INSERT INTO page_content (page_key, content) VALUES (?, ?::jsonb) 
+            ON CONFLICT (page_key) DO UPDATE SET content = EXCLUDED.content, updated_at = CURRENT_TIMESTAMP");
+        $stmt->execute([$key, $content]);
 
         jsonResponse(200, ['success' => true]);
         break;

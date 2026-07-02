@@ -49,14 +49,14 @@ if ($booking['status'] === 'confirmed') {
 
 // บันทึก payment_logs (pending) — จะ update ตอน callback
 $db->exec("CREATE TABLE IF NOT EXISTS payment_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     booking_id VARCHAR(30),
     transaction_id VARCHAR(50),
     payment_method VARCHAR(20) DEFAULT 'payso',
     amount DECIMAL(10,2),
     currency VARCHAR(3) DEFAULT 'THB',
     status VARCHAR(20) DEFAULT 'pending',
-    gateway_response JSON,
+    gateway_response JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )");
 

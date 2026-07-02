@@ -12,19 +12,19 @@ $db->exec("CREATE TABLE IF NOT EXISTS boat_types (
     max_guests INT NOT NULL DEFAULT 3, max_weight INT NOT NULL DEFAULT 200, price INT NOT NULL DEFAULT 9900,
     description TEXT, image VARCHAR(500), images TEXT, features TEXT,
     i18n TEXT, book_url VARCHAR(500) DEFAULT '',
-    sort_order INT NOT NULL DEFAULT 0, is_active TINYINT(1) NOT NULL DEFAULT 1,
+    sort_order INT NOT NULL DEFAULT 0, is_active SMALLINT NOT NULL DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+)");
 
 // Auto-migrate columns
 $cols = [];
-foreach ($db->query("SHOW COLUMNS FROM boat_types")->fetchAll() as $c) $cols[] = $c['Field'];
-if (!in_array('description', $cols)) $db->exec("ALTER TABLE boat_types ADD COLUMN description TEXT AFTER price");
-if (!in_array('image', $cols))       $db->exec("ALTER TABLE boat_types ADD COLUMN image VARCHAR(500) AFTER description");
-if (!in_array('images', $cols))      $db->exec("ALTER TABLE boat_types ADD COLUMN images TEXT AFTER image");
-if (!in_array('features', $cols))    $db->exec("ALTER TABLE boat_types ADD COLUMN features TEXT AFTER images");
-if (!in_array('i18n', $cols))        $db->exec("ALTER TABLE boat_types ADD COLUMN i18n TEXT AFTER features");
-if (!in_array('book_url', $cols))    $db->exec("ALTER TABLE boat_types ADD COLUMN book_url VARCHAR(500) DEFAULT '' AFTER i18n");
+foreach ($db->query("SELECT column_name FROM information_schema.columns WHERE table_name = 'boat_types'")->fetchAll() as $c) $cols[] = $c['column_name'];
+if (!in_array('description', $cols)) $db->exec("ALTER TABLE boat_types ADD COLUMN IF NOT EXISTS description TEXT");
+if (!in_array('image', $cols))       $db->exec("ALTER TABLE boat_types ADD COLUMN IF NOT EXISTS image VARCHAR(500)");
+if (!in_array('images', $cols))      $db->exec("ALTER TABLE boat_types ADD COLUMN IF NOT EXISTS images TEXT");
+if (!in_array('features', $cols))    $db->exec("ALTER TABLE boat_types ADD COLUMN IF NOT EXISTS features TEXT");
+if (!in_array('i18n', $cols))        $db->exec("ALTER TABLE boat_types ADD COLUMN IF NOT EXISTS i18n TEXT");
+if (!in_array('book_url', $cols))    $db->exec("ALTER TABLE boat_types ADD COLUMN IF NOT EXISTS book_url VARCHAR(500) DEFAULT ''");
 
 // Default i18n data for seeding
 function getDefaultI18n($id) {

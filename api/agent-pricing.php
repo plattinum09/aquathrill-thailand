@@ -6,7 +6,7 @@ $db = getDB();
 $db->exec("CREATE TABLE IF NOT EXISTS site_settings (
     setting_key VARCHAR(100) PRIMARY KEY,
     setting_value TEXT NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )");
 
 $method = $_SERVER['REQUEST_METHOD'];
@@ -68,8 +68,8 @@ switch ($method) {
         $json = json_encode($existing, JSON_UNESCAPED_UNICODE);
         $stmt = $db->prepare("INSERT INTO site_settings (setting_key, setting_value)
             VALUES ('agent_pricing', ?)
-            ON DUPLICATE KEY UPDATE setting_value = ?, updated_at = CURRENT_TIMESTAMP");
-        $stmt->execute([$json, $json]);
+            ON CONFLICT (setting_key) DO UPDATE SET setting_value = EXCLUDED.setting_value, updated_at = CURRENT_TIMESTAMP");
+        $stmt->execute([$json]);
 
         jsonResponse(200, ['success' => true, 'agent_pricing' => $existing]);
         break;
